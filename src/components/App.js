@@ -1,7 +1,8 @@
 import React from 'react';
-import Card from './Card';
 import axios from 'axios';
+import Card from './Card';
 import { endpoints } from '../../config';
+import Genres from './Genres';
 
 class App extends React.Component {
   constructor() {
@@ -9,32 +10,59 @@ class App extends React.Component {
 
     this.state = {
       movieList: [],
-    }
+      hearted: [],
+    };
+
+    this.requestMovies();
   }
 
-  componentDidMount() {
-    this.requestPopularMovies();
-  }
-
-  requestPopularMovies = () => {
+  requestMovies = () => {
     axios
       .get(endpoints.mostPopularMovies())
-      .then((response) => {
-        this.setState({
-          movieList: response.data.results,
-        });
-      })
-      .catch((error) => console.log(error.response));
+      .then((res) => this.setMovieList(res.data.results))
+      .catch((error) => console.log(error));
+  };
+
+  setMovieList = (movieList) => {
+    this.setState({
+      movieList,
+    })
+  };
+
+  addHeart = (id) => {
+    const { hearted } = this.state;
+
+    this.setState({
+      hearted: [ ...hearted, id ],
+    })
+  };
+
+  removeHeart = (id) => {
+    const { hearted } = this.state;
+
+    this.setState({
+      hearted: hearted.filter((currentId) => currentId !== id),
+    })
   };
 
   render() {
-    const { movieList } = this.state;
+    const { movieList, hearted } = this.state;
 
     return (
       <React.Fragment>
-        {movieList.map((movie) => (
-          <Card key={movie.id} data={movie} />
-        ))}
+        <Genres onChangeList={this.setMovieList} />
+
+        <div className="cards">
+          {movieList.map((movie) => (
+            <Card
+              key={movie.id}
+              isHearted={hearted.includes(movie.id)}
+              onAddHeart={() => this.addHeart(movie.id)}
+              onRemoveHeart={() => this.removeHeart(movie.id)}
+              movie={movie}
+            />
+          ))}
+        </div>
       </React.Fragment>
     );
   }

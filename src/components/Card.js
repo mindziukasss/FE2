@@ -1,28 +1,30 @@
 import React from 'react';
 import { getImageUrl } from '../../config';
 
-class Card extends React.Component {
+export default class Card extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      summaryShowing: false,
+      opened: false,
     };
   }
 
   toggleSummary = () => {
-    const { summaryShowing } = this.state;
+    const { opened } = this.state;
 
     this.setState({
-      summaryShowing: !summaryShowing,
+      opened: !opened,
     });
   };
 
   render() {
-    const { summaryShowing } = this.state;
     const {
-      data: {
-        poster_path,
+      isHearted,
+      onAddHeart,
+      onRemoveHeart,
+      movie: {
+        backdrop_path,
         original_title,
         overview,
         release_date,
@@ -30,17 +32,21 @@ class Card extends React.Component {
         vote_count,
       },
     } = this.props;
+    const { opened } = this.state;
 
     return (
       <div className="card">
-        <div className="card__image" style={{ backgroundImage: `url(${getImageUrl(poster_path)})` }} />
+        <div
+          className="card__image"
+          style={{ backgroundImage: `url(${getImageUrl(backdrop_path)})` }}
+        />
 
         <div className="card__title">
           {original_title}
         </div>
 
-        <div className="card__like">
-          <i className="fa fa-heart-o" />
+        <div className="card__like" onClick={isHearted ? onRemoveHeart : onAddHeart}>
+          <i className={`fa fa-heart${isHearted ? '' : '-o'}`} />
         </div>
 
         <div className="card__subtitle">
@@ -48,23 +54,18 @@ class Card extends React.Component {
           <span>{vote_average} ({vote_count} votes)</span>
         </div>
 
-        {summaryShowing
-          ? (
-            <div className="card-info">
-              <div className="card-info__header">Summary</div>
-              <div className="card-info__description">
-                {overview}
-              </div>
-            </div>
-          )
-          : null
-        }
+        <div className="card-info">
+          <div className="card-info__header" onClick={this.toggleSummary}>
+            Summary
+          </div>
 
-        <div className="button" onClick={() => this.toggleSummary()}>Show summary</div>
+          {opened
+            ? <div className="card-info__description">{overview}</div>
+            : null
+          }
+
+        </div>
       </div>
-
     );
   }
 }
-
-export default Card;
