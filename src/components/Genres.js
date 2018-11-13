@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-import Card from './Card';
 import { endpoints } from '../../config';
 
 export default class Genres extends React.Component {
