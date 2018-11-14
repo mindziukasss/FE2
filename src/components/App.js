@@ -1,27 +1,24 @@
 import React from 'react';
-import axios from 'axios';
+import { connect } from 'react-redux';
 import Card from './Card';
-import { endpoints } from '../../config';
 import Genres from './Genres';
+import { setMovieList } from '../actions';
+import { getPopularMovies } from '../thunks';
 
 class App extends React.Component {
   constructor() {
     super();
 
     this.state = {
-      movieList: [],
       hearted: [],
     };
-
-    this.requestMovies();
   }
 
-  requestMovies = () => {
-    axios
-      .get(endpoints.mostPopularMovies())
-      .then((res) => this.setMovieList(res.data.results))
-      .catch((error) => console.log(error));
-  };
+  componentDidMount() {
+    const { onGetPopularMovies } = this.props;
+
+    onGetPopularMovies();
+  }
 
   setMovieList = (movieList) => {
     this.setState({
@@ -46,14 +43,15 @@ class App extends React.Component {
   };
 
   render() {
-    const { movieList, hearted } = this.state;
+    const { hearted } = this.state;
+    const { movies } = this.props;
 
     return (
       <React.Fragment>
         <Genres onChangeList={this.setMovieList} />
 
         <div className="cards">
-          {movieList.map((movie) => (
+          {movies.map((movie) => (
             <Card
               key={movie.id}
               isHearted={hearted.includes(movie.id)}
@@ -68,4 +66,16 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default connect(
+  (state) => {
+    return {
+      movies: state.movies.list,
+    };
+  },
+  (dispatch) => {
+    return {
+      onGetPopularMovies: () => dispatch(getPopularMovies()),
+      onSetMovieList: (list) => dispatch(setMovieList(list)),
+    };
+  }
+)(App);
