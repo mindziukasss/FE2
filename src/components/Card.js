@@ -23,6 +23,8 @@ export default class Card extends React.Component {
       isHearted,
       onAddHeart,
       onRemoveHeart,
+      addLogLike,
+      addLogDislike,
       movie: {
         backdrop_path,
         original_title,
@@ -45,7 +47,7 @@ export default class Card extends React.Component {
           {original_title}
         </div>
 
-        <div className="card__like" onClick={isHearted ? onRemoveHeart : onAddHeart}>
+        <div className="card__like" onClick={(isHearted ? () => { onRemoveHeart(); addLogDislike(); } : () => { onAddHeart(); addLogLike(); } )}>
           <i className={`fa fa-heart${isHearted ? '' : '-o'}`} />
         </div>
 
@@ -63,7 +65,6 @@ export default class Card extends React.Component {
             ? <div className="card-info__description">{overview}</div>
             : null
           }
-
         </div>
       </div>
     );
